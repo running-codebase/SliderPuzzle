@@ -18,8 +18,8 @@ public class ImageSlicer  {
         int tileWidth = baseImage.getWidth() / rowCount;
         int tileHeight = baseImage.getHeight() / columnCount;
 
-        for (int row = 0; row < rowCount - 1; row ++){
-            for (int column = 0; column < columnCount -1; column ++){
+        for (int row = 0; row < rowCount; row ++){
+            for (int column = 0; column < columnCount; column ++){
                 int x = row * tileWidth;
                 int y = column * tileHeight;
                 Bitmap tile = Bitmap.createBitmap(baseImage, x, y, tileWidth, tileHeight);
