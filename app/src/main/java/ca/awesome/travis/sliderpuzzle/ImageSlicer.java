@@ -15,8 +15,8 @@ public class ImageSlicer  {
 
         ArrayList<Bitmap> resultTiles = new ArrayList<>();
         Bitmap baseImage = ((BitmapDrawable) image).getBitmap();
-        int tileWidth = baseImage.getWidth() / rowCount;
-        int tileHeight = baseImage.getHeight() / columnCount;
+        int tileWidth = baseImage.getWidth() / columnCount;
+        int tileHeight = baseImage.getHeight() / rowCount;
 
         for (int row = 0; row < rowCount; row ++){
             for (int column = 0; column < columnCount; column ++){
