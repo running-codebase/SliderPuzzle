@@ -24,7 +24,7 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
     private static final int COLUMNS = 4;
     private static final int EMPTY_TILE_ID = -1;
     private static final float MAX_TAP_DRAG = 3.0f;
-    private static final int SCRAMBLE_MOVES = 100;
+    private static final int SCRAMBLE_MOVES = 10;
 
 
     private Context context;
@@ -118,7 +118,10 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
     private void scrambleTiles(){
         Random rand = new Random();
         for (int i = 0; i < SCRAMBLE_MOVES; i ++){
-          TilePieceView tilePieceView = tilePieceViews.get(rand.nextInt(tilePieceViews.size()));
+            TilePieceView tilePieceView = tilePieceViews.get(rand.nextInt(tilePieceViews.size()));
+            while (tilePieceView.isEmpty() || !gridCalc.tilePieceInSameRowOrColumnToEmptyTile(tilePieceView, emptyTilePieceView)) {
+                tilePieceView = tilePieceViews.get(rand.nextInt(tilePieceViews.size()));
+            }
             if (!tilePieceView.isEmpty() && gridCalc.tilePieceInSameRowOrColumnToEmptyTile(tilePieceView, emptyTilePieceView)) {
                 downActionPressed(tilePieceView);
                 upActionPressed(tilePieceView, 1.0f, 1.0f, true);
