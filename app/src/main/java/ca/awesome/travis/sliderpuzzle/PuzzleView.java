@@ -117,10 +117,10 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
             selectedTilePieceView = touchedTilePiece;
             switch (event.getActionMasked()){
                 case MotionEvent.ACTION_DOWN:
-                    movingTilePieceViews.clear();
-
                     initialTouchX = event.getRawX();
                     initialTouchY = event.getRawY();
+
+                    movingTilePieceViews.clear();
                     movingTilePieceViews = gridCalc.tilesPiecesThatMove(touchedTilePiece, emptyTilePieceView, tilePieceViews);
                     movingDirection = gridCalc.calculateDirection(touchedTilePiece, emptyTilePieceView);
                     break;
@@ -160,14 +160,14 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
     }
 
 
-    public void temporarilyMoveTiles(float deltaX, float deltaY) {
+    private void temporarilyMoveTiles(float deltaX, float deltaY) {
         for (TilePieceView tilePieceView: movingTilePieceViews){
             tilePieceView.setX(tilePieceView.getHomeX() + deltaX);
             tilePieceView.setY(tilePieceView.getHomeY() + deltaY);
         }
     }
 
-    public void moveTilesToFinalPosition(float deltaX, float deltaY) {
+    private void moveTilesToFinalPosition(float deltaX, float deltaY) {
 
         for (TilePieceView tilePieceView: movingTilePieceViews){
             tilePieceView.setX(tilePieceView.getHomeX() + deltaX);
@@ -177,7 +177,7 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
         }
     }
 
-    public void updateTilePieceViewsRowAndColumn(float deltaX, float deltaY) {
+    private void updateTilePieceViewsRowAndColumn(float deltaX, float deltaY) {
 
         for (TilePieceView tilePieceView: movingTilePieceViews){
             if (deltaX < 0 ) {
