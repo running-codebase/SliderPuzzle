@@ -5,12 +5,12 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
 
 /**
@@ -22,15 +22,16 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
     private static final int COLUMNS = 4;
     private static final int EMPTY_TILE_ID = -1;
     private static final float MAX_TAP_DRAG = 3.0f;
+    private static final int SCRAMBLE_MOVES = 100;
 
 
     private Context context;
     private boolean viewInitialized = false;
-    private boolean scrambled = false;
 
     private ArrayList<TilePieceView> tilePieceViews = new ArrayList<>();
     private ArrayList<TilePieceView> movingTilePieceViews = new ArrayList<>();
     private GridCalculations.Direction movingDirection = GridCalculations.Direction.NONE;
+    private int[] correctOrder;
 
     private TilePieceView emptyTilePieceView;
 
@@ -61,6 +62,7 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
             gridCalc = new GridCalculations(tileWidth, tileHight);
 
             initializeTiles();
+            correctOrder = correctOrder(tilePieceViews); //Calculate the correct ordering of the tiles before we scramble them
             scrambleTiles();
             viewInitialized = true;
         }
@@ -111,9 +113,34 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
 
     }
 
+    private int[] correctOrder(ArrayList<TilePieceView> tilePieceViews){
+        correctOrder = new int[tilePieceViews.size()];
+
+        for (int i = 0; i<  tilePieceViews.size() - 1; i++){
+            correctOrder[i] = tilePieceViews.get(i).getId();
+        }
+        return correctOrder;
+    }
+
+    private boolean tilesInWinningPosition(ArrayList<TilePieceView> tilePieceViews, int[] correctOrder){
+        boolean correct = true;
+        int[] currentOrder = new int[tilePieceViews.size()];
+
+        for(TilePieceView tilePieceView: tilePieceViews){
+            currentOrder[tilePieceView.getColumn() * ROWS + tilePieceView.getRow()] = tilePieceView.getId();
+        }
+
+        for (int i = 0; i<  correctOrder.length - 1; i++) {
+            if (currentOrder[i] != correctOrder[i]){
+                correct = false;
+            }
+        }
+        return correct;
+    }
+
     private void scrambleTiles(){
         Random rand = new Random();
-        for (int i = 0; i < 100; i ++){
+        for (int i = 0; i < SCRAMBLE_MOVES; i ++){
           TilePieceView tilePieceView = tilePieceViews.get(rand.nextInt(tilePieceViews.size()));
             if (!tilePieceView.isEmpty() && gridCalc.tilePieceInSameRowOrColumnToEmptyTile(tilePieceView, emptyTilePieceView)) {
                 downActionPressed(tilePieceView);
@@ -146,6 +173,10 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
                     float finalDeltaX = event.getRawX() - initialTouchX;
                     float finalDeltaY = event.getRawY() - initialTouchY;
                     upActionPressed(touchedTilePiece, finalDeltaX, finalDeltaY, false);
+
+                    if (tilesInWinningPosition(tilePieceViews, correctOrder)) {
+                        Log.d("Slider", "You win");
+                    }
                     break;
             }
         }
