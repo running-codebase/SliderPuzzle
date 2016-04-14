@@ -18,6 +18,32 @@ public class GridCalculations {
         this.tileHight = tileHight;
     }
 
+    public int[] correctOrder(ArrayList<TilePieceView> tilePieceViews){
+        int[] correctOrder = new int[tilePieceViews.size()];
+
+        for (int i = 0; i<  tilePieceViews.size() - 1; i++){
+            correctOrder[i] = tilePieceViews.get(i).getId();
+        }
+        return correctOrder;
+    }
+
+    public boolean tilesInWinningPosition(ArrayList<TilePieceView> tilePieceViews, int[] correctOrder, int rows){
+        boolean correct = true;
+        int[] currentOrder = new int[tilePieceViews.size()];
+
+        for(TilePieceView tilePieceView: tilePieceViews){
+            currentOrder[tilePieceView.getColumn() * rows + tilePieceView.getRow()] = tilePieceView.getId();
+        }
+
+        for (int i = 0; i<  correctOrder.length - 1; i++) {
+            if (currentOrder[i] != correctOrder[i]){
+                correct = false;
+            }
+        }
+        return correct;
+    }
+
+
     public enum Direction {
         LEFT, UP, RIGHT, DOWN, NONE
     }

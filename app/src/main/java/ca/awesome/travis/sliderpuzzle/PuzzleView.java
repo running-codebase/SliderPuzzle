@@ -62,7 +62,7 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
             gridCalc = new GridCalculations(tileWidth, tileHight);
 
             initializeTiles();
-            correctOrder = correctOrder(tilePieceViews); //Calculate the correct ordering of the tiles before we scramble them
+            correctOrder = gridCalc.correctOrder(tilePieceViews); //Calculate the correct ordering of the tiles before we scramble them
             scrambleTiles();
             viewInitialized = true;
         }
@@ -113,31 +113,6 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
 
     }
 
-    private int[] correctOrder(ArrayList<TilePieceView> tilePieceViews){
-        correctOrder = new int[tilePieceViews.size()];
-
-        for (int i = 0; i<  tilePieceViews.size() - 1; i++){
-            correctOrder[i] = tilePieceViews.get(i).getId();
-        }
-        return correctOrder;
-    }
-
-    private boolean tilesInWinningPosition(ArrayList<TilePieceView> tilePieceViews, int[] correctOrder){
-        boolean correct = true;
-        int[] currentOrder = new int[tilePieceViews.size()];
-
-        for(TilePieceView tilePieceView: tilePieceViews){
-            currentOrder[tilePieceView.getColumn() * ROWS + tilePieceView.getRow()] = tilePieceView.getId();
-        }
-
-        for (int i = 0; i<  correctOrder.length - 1; i++) {
-            if (currentOrder[i] != correctOrder[i]){
-                correct = false;
-            }
-        }
-        return correct;
-    }
-
     private void scrambleTiles(){
         Random rand = new Random();
         for (int i = 0; i < SCRAMBLE_MOVES; i ++){
@@ -149,6 +124,7 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
             }
         }
     }
+
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -174,7 +150,7 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
                     float finalDeltaY = event.getRawY() - initialTouchY;
                     upActionPressed(touchedTilePiece, finalDeltaX, finalDeltaY, false);
 
-                    if (tilesInWinningPosition(tilePieceViews, correctOrder)) {
+                    if (gridCalc.tilesInWinningPosition(tilePieceViews, correctOrder, ROWS)) {
                         Log.d("Slider", "You win");
                     }
                     break;
