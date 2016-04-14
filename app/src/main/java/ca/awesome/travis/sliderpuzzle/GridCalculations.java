@@ -160,6 +160,39 @@ public class GridCalculations {
         return constrainedFinalDeltas;
     }
 
+    public float[] snapTapActionFinalMovement(GridCalculations.Direction moveDirection, float deltaX, float deltaY) {
+        float[] constrainedFinalDeltas = new float[2];
+
+        switch (moveDirection){
+            case DOWN:
+                deltaY = tileHight;
+                break;
+            case UP:
+                deltaY = -tileHight;
+                break;
+            case LEFT:
+                deltaX = -tileWidth;
+                break;
+            case RIGHT:
+                deltaX = tileWidth;
+                break;
+        }
+
+        constrainedFinalDeltas[0] = deltaX;
+        constrainedFinalDeltas[1] = deltaY;
+        return constrainedFinalDeltas;
+    }
+
+
+
+    public boolean isTouchAction(float maxDrag, float deltaX, float deltaY) {
+        if (Math.sqrt((deltaX*deltaX) + (deltaY*deltaY)) < maxDrag) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public static boolean movementTriggeredTileUpdate(float deltaX, float deltaY) {
         if (deltaX != 0 || deltaY != 0){
             return true;

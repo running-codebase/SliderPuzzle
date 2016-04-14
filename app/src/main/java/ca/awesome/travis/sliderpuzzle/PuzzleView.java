@@ -20,6 +20,8 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
     private static final int ROWS = 4;
     private static final int COLUMNS = 4;
     private static final int EMPTY_TILE_ID = -1;
+    private static final float MAX_TAP_DRAG = 3.0f;
+
 
     private Context context;
     private boolean viewInitialized = false;
@@ -135,7 +137,13 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
                     float finalDeltaY = event.getRawY() - initialTouchY;
                     float[] constrainedFinalDeltas = gridCalc.constrainTemporaryMovement(movingDirection, finalDeltaX, finalDeltaY);
 
-                    float[] finalDeltas = gridCalc.snapFinalMovement(movingDirection, constrainedFinalDeltas[0], constrainedFinalDeltas[1]);
+                    float[] finalDeltas;
+                    if (gridCalc.isTouchAction(MAX_TAP_DRAG,constrainedFinalDeltas[0], constrainedFinalDeltas[1])){
+                        finalDeltas = gridCalc.snapTapActionFinalMovement(movingDirection, constrainedFinalDeltas[0], constrainedFinalDeltas[1]);
+                    } else {
+                        finalDeltas = gridCalc.snapFinalMovement(movingDirection, constrainedFinalDeltas[0], constrainedFinalDeltas[1]);
+                    }
+
                     if (GridCalculations.movementTriggeredTileUpdate(finalDeltas[0], finalDeltas[1])) {
                         moveTilesToFinalPosition(finalDeltas[0], finalDeltas[1]);
                         emptyTilePieceView = new TilePieceView(context, EMPTY_TILE_ID, selectedTilePieceView.getRow(), selectedTilePieceView.getColumn(), true);
