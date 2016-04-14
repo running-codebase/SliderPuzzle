@@ -22,6 +22,14 @@ public class GridCalculations {
         LEFT, UP, RIGHT, DOWN, NONE
     }
 
+    public boolean tilePieceInSameRowOrColumnToEmptyTile(TilePieceView tilePieceView, TilePieceView emptyTilePieceView) {
+        if (tilePieceView.getRow() == emptyTilePieceView.getRow() || tilePieceView.getColumn() == emptyTilePieceView.getColumn() ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public ArrayList<TilePieceView> tilesPiecesThatMove(TilePieceView touchedTilePiece, TilePieceView emptySpaceTilePiece, ArrayList<TilePieceView> tilePieces ){
         ArrayList<TilePieceView> touchedTilePieces = new ArrayList<>();
         touchedTilePieces.add(touchedTilePiece);
