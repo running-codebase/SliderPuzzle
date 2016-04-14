@@ -1,6 +1,8 @@
 package ca.awesome.travis.sliderpuzzle;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.support.v4.content.ContextCompat;
@@ -152,6 +154,7 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
 
                     if (gridCalc.tilesInWinningPosition(tilePieceViews, correctOrder, ROWS)) {
                         Log.d("Slider", "You win");
+                        showWinningDialog();
                     }
                     break;
             }
@@ -233,5 +236,19 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
                 tilePieceView.setRow(tilePieceView.getRow() + 1);
             }
         }
+    }
+
+    private void showWinningDialog(){
+        AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+        alertDialog.setTitle(getResources().getString(R.string.you_win));
+        alertDialog.setMessage(getResources().getString(R.string.press_okay_to_play_again));
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, getResources().getString(R.string.ok),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        scrambleTiles();
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
     }
 }
