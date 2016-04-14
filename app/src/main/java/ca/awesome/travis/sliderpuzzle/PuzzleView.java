@@ -31,7 +31,6 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
     private GridCalculations.Direction movingDirection = GridCalculations.Direction.NONE;
 
     private TilePieceView emptyTilePieceView;
-    private TilePieceView selectedTilePieceView;
 
     private GridCalculations gridCalc;
     private int tileWidth, tileHight;
@@ -114,51 +113,61 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
         TilePieceView touchedTilePiece = (TilePieceView) v;
         if (!touchedTilePiece.isEmpty() && gridCalc.tilePieceInSameRowOrColumnToEmptyTile(touchedTilePiece, emptyTilePieceView)) {
 
-            selectedTilePieceView = touchedTilePiece;
             switch (event.getActionMasked()){
                 case MotionEvent.ACTION_DOWN:
                     initialTouchX = event.getRawX();
                     initialTouchY = event.getRawY();
-
-                    movingTilePieceViews.clear();
-                    movingTilePieceViews = gridCalc.tilesPiecesThatMove(touchedTilePiece, emptyTilePieceView, tilePieceViews);
-                    movingDirection = gridCalc.calculateDirection(touchedTilePiece, emptyTilePieceView);
+                    downActionPressed(touchedTilePiece);
                     break;
 
                 case MotionEvent.ACTION_MOVE:
                     float deltaX = event.getRawX() - initialTouchX;
                     float deltaY = event.getRawY() - initialTouchY;
-                    float[] constrainedTemporaryDeltas = gridCalc.constrainTemporaryMovement(movingDirection, deltaX, deltaY);
-                    temporarilyMoveTiles(constrainedTemporaryDeltas[0], constrainedTemporaryDeltas[1]);
+                    moveActionPressed(deltaX, deltaY);
                     break;
 
                 case MotionEvent.ACTION_UP:
                     float finalDeltaX = event.getRawX() - initialTouchX;
                     float finalDeltaY = event.getRawY() - initialTouchY;
-                    float[] constrainedFinalDeltas = gridCalc.constrainTemporaryMovement(movingDirection, finalDeltaX, finalDeltaY);
-
-                    float[] finalDeltas;
-                    if (gridCalc.isTouchAction(MAX_TAP_DRAG,constrainedFinalDeltas[0], constrainedFinalDeltas[1])){
-                        finalDeltas = gridCalc.snapTapActionFinalMovement(movingDirection, constrainedFinalDeltas[0], constrainedFinalDeltas[1]);
-                    } else {
-                        finalDeltas = gridCalc.snapFinalMovement(movingDirection, constrainedFinalDeltas[0], constrainedFinalDeltas[1]);
-                    }
-
-                    if (GridCalculations.movementTriggeredTileUpdate(finalDeltas[0], finalDeltas[1])) {
-                        moveTilesToFinalPosition(finalDeltas[0], finalDeltas[1]);
-                        emptyTilePieceView = new TilePieceView(context, EMPTY_TILE_ID, selectedTilePieceView.getRow(), selectedTilePieceView.getColumn(), true);
-                        updateTilePieceViewsRowAndColumn(finalDeltas[0], finalDeltas[1]);
-                    } else {
-                        moveTilesToFinalPosition(finalDeltas[0], finalDeltas[1]);
-                    }
-
-                    movingDirection = GridCalculations.Direction.NONE;
+                    upActionPressed(touchedTilePiece, finalDeltaX, finalDeltaY);
                     break;
             }
         }
         return true;
     }
 
+    private void downActionPressed(TilePieceView touchedTilePiece){
+        movingTilePieceViews.clear();
+        movingTilePieceViews = gridCalc.tilesPiecesThatMove(touchedTilePiece, emptyTilePieceView, tilePieceViews);
+        movingDirection = gridCalc.calculateDirection(touchedTilePiece, emptyTilePieceView);
+    }
+
+    private void moveActionPressed(float deltaX, float deltaY ) {
+        float[] constrainedTemporaryDeltas = gridCalc.constrainTemporaryMovement(movingDirection, deltaX, deltaY);
+        temporarilyMoveTiles(constrainedTemporaryDeltas[0], constrainedTemporaryDeltas[1]);
+    }
+
+    private void upActionPressed(TilePieceView touchedTilePiece, float finalDeltaX, float finalDeltaY ) {
+        float[] constrainedFinalDeltas = gridCalc.constrainTemporaryMovement(movingDirection, finalDeltaX, finalDeltaY);
+
+        float[] finalDeltas;
+        if (gridCalc.isTouchAction(MAX_TAP_DRAG,constrainedFinalDeltas[0], constrainedFinalDeltas[1])){
+            finalDeltas = gridCalc.snapTapActionFinalMovement(movingDirection, constrainedFinalDeltas[0], constrainedFinalDeltas[1]);
+        } else {
+            finalDeltas = gridCalc.snapFinalMovement(movingDirection, constrainedFinalDeltas[0], constrainedFinalDeltas[1]);
+        }
+
+        if (GridCalculations.movementTriggeredTileUpdate(finalDeltas[0], finalDeltas[1])) {
+            moveTilesToFinalPosition(finalDeltas[0], finalDeltas[1]);
+            emptyTilePieceView = new TilePieceView(context, EMPTY_TILE_ID, touchedTilePiece.getRow(), touchedTilePiece.getColumn(), true);
+            updateTilePieceViewsRowAndColumn(finalDeltas[0], finalDeltas[1]);
+        } else {
+            moveTilesToFinalPosition(finalDeltas[0], finalDeltas[1]);
+        }
+
+        movingDirection = GridCalculations.Direction.NONE;
+
+    }
 
     private void temporarilyMoveTiles(float deltaX, float deltaY) {
         for (TilePieceView tilePieceView: movingTilePieceViews){
