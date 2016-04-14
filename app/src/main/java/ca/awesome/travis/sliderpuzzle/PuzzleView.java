@@ -11,6 +11,7 @@ import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 
 /**
  * Created by tco on 16-04-13.
@@ -25,6 +26,7 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
 
     private Context context;
     private boolean viewInitialized = false;
+    private boolean scrambled = false;
 
     private ArrayList<TilePieceView> tilePieceViews = new ArrayList<>();
     private ArrayList<TilePieceView> movingTilePieceViews = new ArrayList<>();
@@ -59,6 +61,7 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
             gridCalc = new GridCalculations(tileWidth, tileHight);
 
             initializeTiles();
+            scrambleTiles();
             viewInitialized = true;
         }
     }
@@ -108,8 +111,21 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
 
     }
 
+    private void scrambleTiles(){
+        Random rand = new Random();
+        for (int i = 0; i < 100; i ++){
+          TilePieceView tilePieceView = tilePieceViews.get(rand.nextInt(tilePieceViews.size()));
+            if (!tilePieceView.isEmpty() && gridCalc.tilePieceInSameRowOrColumnToEmptyTile(tilePieceView, emptyTilePieceView)) {
+                downActionPressed(tilePieceView);
+                upActionPressed(tilePieceView, 1.0f, 1.0f, true);
+
+            }
+        }
+    }
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+
         TilePieceView touchedTilePiece = (TilePieceView) v;
         if (!touchedTilePiece.isEmpty() && gridCalc.tilePieceInSameRowOrColumnToEmptyTile(touchedTilePiece, emptyTilePieceView)) {
 
@@ -129,7 +145,7 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
                 case MotionEvent.ACTION_UP:
                     float finalDeltaX = event.getRawX() - initialTouchX;
                     float finalDeltaY = event.getRawY() - initialTouchY;
-                    upActionPressed(touchedTilePiece, finalDeltaX, finalDeltaY);
+                    upActionPressed(touchedTilePiece, finalDeltaX, finalDeltaY, false);
                     break;
             }
         }
@@ -147,7 +163,7 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
         temporarilyMoveTiles(constrainedTemporaryDeltas[0], constrainedTemporaryDeltas[1]);
     }
 
-    private void upActionPressed(TilePieceView touchedTilePiece, float finalDeltaX, float finalDeltaY ) {
+    private void upActionPressed(TilePieceView touchedTilePiece, float finalDeltaX, float finalDeltaY, boolean scrambling ) {
         float[] constrainedFinalDeltas = gridCalc.constrainTemporaryMovement(movingDirection, finalDeltaX, finalDeltaY);
 
         float[] finalDeltas;
@@ -158,11 +174,11 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
         }
 
         if (GridCalculations.movementTriggeredTileUpdate(finalDeltas[0], finalDeltas[1])) {
-            moveTilesToFinalPosition(finalDeltas[0], finalDeltas[1]);
+            moveTilesToFinalPosition(scrambling, finalDeltas[0], finalDeltas[1]);
             emptyTilePieceView = new TilePieceView(context, EMPTY_TILE_ID, touchedTilePiece.getRow(), touchedTilePiece.getColumn(), true);
             updateTilePieceViewsRowAndColumn(finalDeltas[0], finalDeltas[1]);
         } else {
-            moveTilesToFinalPosition(finalDeltas[0], finalDeltas[1]);
+            moveTilesToFinalPosition(scrambling, finalDeltas[0], finalDeltas[1]);
         }
 
         movingDirection = GridCalculations.Direction.NONE;
@@ -176,13 +192,22 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
         }
     }
 
-    private void moveTilesToFinalPosition(float deltaX, float deltaY) {
+    private void moveTilesToFinalPosition(boolean scrambling, float deltaX, float deltaY) {
 
         for (TilePieceView tilePieceView: movingTilePieceViews){
-            tilePieceView.setX(tilePieceView.getHomeX() + deltaX);
-            tilePieceView.setY(tilePieceView.getHomeY() + deltaY);
-            tilePieceView.setHomeX(tilePieceView.getHomeX() + (int) deltaX);
-            tilePieceView.setHomeY(tilePieceView.getHomeY() + (int) deltaY);
+            if (scrambling){
+                //This was added because when calling scramble the views context is different then when called from onTouch
+                tilePieceView.setX(tilePieceView.getX() + deltaX);
+                tilePieceView.setY(tilePieceView.getY() + deltaY);
+                tilePieceView.setHomeX(tilePieceView.getHomeX() + (int) deltaX);
+                tilePieceView.setHomeY(tilePieceView.getHomeY() + (int) deltaY);
+
+            } else {
+                tilePieceView.setX(tilePieceView.getHomeX() + deltaX);
+                tilePieceView.setY(tilePieceView.getHomeY() + deltaY);
+                tilePieceView.setHomeX(tilePieceView.getHomeX() + (int) deltaX);
+                tilePieceView.setHomeY(tilePieceView.getHomeY() + (int) deltaY);
+            }
         }
     }
 
