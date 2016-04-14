@@ -51,6 +51,8 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         if (!viewInitialized) {
+            setMotionEventSplittingEnabled(false);
+
             tileWidth = getWidth() / COLUMNS;
             tileHight = getWidth() / ROWS;
             gridCalc = new GridCalculations(tileWidth, tileHight);
@@ -104,7 +106,6 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
         tilePiece.setHomeY(top);
 
     }
-
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
