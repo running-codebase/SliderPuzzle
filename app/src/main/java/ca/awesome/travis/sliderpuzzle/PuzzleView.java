@@ -24,7 +24,7 @@ public class PuzzleView extends RelativeLayout implements View.OnTouchListener {
     private static final int COLUMNS = 4;
     private static final int EMPTY_TILE_ID = -1;
     private static final float MAX_TAP_DRAG = 3.0f;
-    private static final int SCRAMBLE_MOVES = 10;
+    private static final int SCRAMBLE_MOVES = 100;
 
 
     private Context context;
